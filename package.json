@@ -1,5 +1,6 @@
 {
   "name": "lesego-portfolio",
+  "homepage": "https://lsgsego.github.io/lesego",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -8,9 +9,12 @@
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
-    "type-check": "vue-tsc --build"
+    "type-check": "vue-tsc --build",
+    "deploy": "yarn build && yarn deploy:gh-pages",
+    "deploy:gh-pages": "gh-pages -d dist"
   },
   "dependencies": {
+    "gh-pages": "^6.3.0",
     "vue": "^3.5.40",
     "yarn": "^1.22.22"
   },
