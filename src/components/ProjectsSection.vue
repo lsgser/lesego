@@ -6,199 +6,197 @@ defineProps<{
   projects: Project[]
 }>()
 
-const activeProject = ref<string | null>(null)
+const activeIndex = ref<number | null>(null)
 
-function handleTilt(e: MouseEvent, el: HTMLElement) {
-  const rect = el.getBoundingClientRect()
-  const x = (e.clientX - rect.left) / rect.width - 0.5
-  const y = (e.clientY - rect.top) / rect.height - 0.5
-  el.style.transform = `perspective(900px) rotateY(${x * 10}deg) rotateX(${-y * 10}deg) translateY(-6px)`
+function toggle(index: number) {
+  activeIndex.value = activeIndex.value === index ? null : index
 }
 
-function resetTilt(el: HTMLElement) {
-  el.style.transform = ''
-}
-
-function toggleProject(title: string) {
-  activeProject.value = activeProject.value === title ? null : title
+function padIndex(index: number) {
+  return String(index + 1).padStart(2, '0')
 }
 </script>
 
 <template>
   <section id="projects" class="projects">
     <div class="section-container">
-      <span class="section-label" data-reveal>Projects</span>
-      <h2 class="section-title" data-reveal>Selected work</h2>
+      <span class="section-label" data-reveal><em>//</em> selected work</span>
+      <h2 class="section-title" data-reveal>
+        Projects<span class="section-title--stroke">.</span>
+      </h2>
 
-      <div class="projects__grid">
-        <article
+      <ul class="projects__list">
+        <li
           v-for="(project, index) in projects"
           :key="project.title"
-          class="project-card"
-          :class="{
-            'project-card--featured': project.featured,
-            'project-card--active': activeProject === project.title,
-          }"
+          class="project-row"
+          :class="{ 'project-row--open': activeIndex === index }"
           data-reveal
-          :style="{ transitionDelay: `${index * 0.08}s` }"
-          @mousemove="handleTilt($event, $event.currentTarget as HTMLElement)"
-          @mouseleave="resetTilt($event.currentTarget as HTMLElement)"
-          @click="toggleProject(project.title)"
+          :style="{ transitionDelay: `${index * 0.06}s` }"
         >
-          <div class="project-card__header">
-            <div class="project-card__icon" aria-hidden="true">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-              </svg>
-            </div>
-            <div class="project-card__links" @click.stop>
+          <button class="project-row__trigger" @click="toggle(index)">
+            <span class="project-row__index">{{ padIndex(index) }}</span>
+            <span class="project-row__title">{{ project.title }}</span>
+            <span class="project-row__toggle" aria-hidden="true">
+              {{ activeIndex === index ? '−' : '+' }}
+            </span>
+          </button>
+
+          <div class="project-row__panel">
+            <div class="project-row__panel-inner">
+              <p class="project-row__description">{{ project.description }}</p>
+              <div class="project-row__tags">
+                <span v-for="tag in project.tags" :key="tag" class="tag">{{ tag }}</span>
+              </div>
+              <div class="project-row__links">
               <a
                 v-if="project.liveUrl"
                 :href="project.liveUrl"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="View live site"
-                class="project-card__link"
+                class="link-arrow"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                  <polyline points="15 3 21 3 21 9" />
-                  <line x1="10" y1="14" x2="21" y2="3" />
+                Live site
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="7" y1="17" x2="17" y2="7" />
+                  <polyline points="7 7 17 7 17 17" />
                 </svg>
               </a>
+              <a
+                v-if="project.repoUrl"
+                :href="project.repoUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="link-arrow"
+              >
+                Repository
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="7" y1="17" x2="17" y2="7" />
+                  <polyline points="7 7 17 7 17 17" />
+                </svg>
+              </a>
+              </div>
             </div>
           </div>
-
-          <h3 class="project-card__title">{{ project.title }}</h3>
-          <p
-            class="project-card__description"
-            :class="{ 'project-card__description--expanded': activeProject === project.title }"
-          >
-            {{ project.description }}
-          </p>
-
-          <div class="project-card__tags">
-            <span v-for="tag in project.tags" :key="tag" class="tag">{{ tag }}</span>
-          </div>
-
-          <span class="project-card__hint">
-            {{ activeProject === project.title ? 'Click to collapse' : 'Click to expand' }}
-          </span>
-        </article>
-      </div>
+        </li>
+      </ul>
     </div>
   </section>
 </template>
 
 <style scoped>
 .projects {
-  padding: 6rem 0;
+  padding: var(--section-y) 0;
+  border-top: 1px solid var(--color-border);
 }
 
-.projects__grid {
+.projects__list {
+  list-style: none;
+}
+
+.project-row {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.project-row__trigger {
+  width: 100%;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
-}
-
-.project-card {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 1.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
-  cursor: pointer;
-  transform-style: preserve-3d;
-  will-change: transform;
-}
-
-.project-card:hover,
-.project-card--active {
-  border-color: var(--color-border-hover);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
-}
-
-.project-card--featured {
-  border-color: rgba(224, 122, 95, 0.25);
-}
-
-.project-card--featured:hover,
-.project-card--featured.project-card--active {
-  border-color: var(--color-accent);
-}
-
-.project-card__header {
-  display: flex;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 0;
+  text-align: left;
+  color: inherit;
+  transition: color var(--transition);
 }
 
-.project-card__icon {
+.project-row__trigger:hover {
   color: var(--color-accent);
 }
 
-.project-card__links {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.project-card__link {
-  color: var(--color-text-muted);
-  transition: var(--transition);
-  padding: 0.375rem;
-  border-radius: var(--radius-sm);
-}
-
-.project-card__link:hover {
-  color: var(--color-accent);
-  background: var(--color-accent-soft);
-}
-
-.project-card__title {
+.project-row__index {
   font-family: var(--font-display);
-  font-size: 1.25rem;
-  font-weight: 700;
-}
-
-.project-card__description {
-  font-size: 0.9375rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
   color: var(--color-text-muted);
-  line-height: 1.65;
-  flex: 1;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
+}
+
+.project-row__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.375rem, 5vw, 2.75rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.project-row__toggle {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  width: 2rem;
+  text-align: center;
+}
+
+.project-row__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--transition);
+}
+
+.project-row--open .project-row__panel {
+  grid-template-rows: 1fr;
+}
+
+.project-row__panel > .project-row__panel-inner {
   overflow: hidden;
-  transition: var(--transition);
 }
 
-.project-card__description--expanded {
-  -webkit-line-clamp: unset;
-  display: block;
+.project-row__description {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  line-height: 1.75;
+  max-width: 42rem;
+  padding-bottom: 1rem;
+  opacity: 0;
+  transition: opacity 0.35s ease;
 }
 
-.project-card__tags {
+.project-row--open .project-row__description {
+  opacity: 1;
+}
+
+.project-row__tags {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-.project-card__hint {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
+  padding-bottom: 1.25rem;
   opacity: 0;
-  transition: opacity 0.25s ease;
+  transition: opacity 0.35s ease 0.05s;
 }
 
-.project-card:hover .project-card__hint,
-.project-card--active .project-card__hint {
+.project-row--open .project-row__tags {
   opacity: 1;
+}
+
+.project-row__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding-bottom: 1.5rem;
+  opacity: 0;
+  transition: opacity 0.35s ease 0.08s;
+}
+
+.project-row--open .project-row__links {
+  opacity: 1;
+}
+
+@media (min-width: 768px) {
+  .project-row__trigger {
+    padding: 1.75rem 0;
+    gap: 2rem;
+  }
 }
 </style>

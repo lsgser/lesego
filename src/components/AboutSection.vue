@@ -1,37 +1,50 @@
 <script setup lang="ts">
+import type { AboutHighlight } from '@/types/portfolio'
+
 defineProps<{
   about: string[]
-  location: string
+  highlights: AboutHighlight[]
 }>()
 </script>
 
 <template>
   <section id="about" class="about">
     <div class="section-container">
-      <span class="section-label" data-reveal>About</span>
-      <h2 class="section-title" data-reveal>A bit about me</h2>
+      <span class="section-label" data-reveal><em>//</em> about</span>
+      <h2 class="section-title" data-reveal>
+        A bit <span class="section-title--stroke">about me</span>
+      </h2>
 
-      <div class="about__grid">
+      <div class="about__layout">
         <div class="about__text">
-          <p v-for="(paragraph, index) in about" :key="index" data-reveal :style="{ transitionDelay: `${index * 0.1}s` }">
+          <p
+            v-for="(paragraph, index) in about"
+            :key="index"
+            class="about__paragraph"
+            :class="{ 'about__paragraph--lead': index === 0 }"
+            data-reveal
+          >
             {{ paragraph }}
           </p>
         </div>
 
-        <div class="about__card" data-reveal>
-          <div class="about__card-item">
-            <span class="about__card-label">Location</span>
-            <span class="about__card-value">{{ location }}</span>
-          </div>
-          <div class="about__card-item">
-            <span class="about__card-label">Freelancing</span>
-            <span class="about__card-value">Since 2018</span>
-          </div>
-          <div class="about__card-item">
-            <span class="about__card-label">Focus</span>
-            <span class="about__card-value">Web & mobile development</span>
-          </div>
-        </div>
+        <aside class="about__aside" data-reveal>
+          <ul class="about__list">
+            <li v-for="item in highlights" :key="item.label" class="about__list-item">
+              <span class="about__list-label">{{ item.label }}</span>
+              <a
+                v-if="item.href"
+                :href="item.href"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="about__list-value about__list-value--link"
+              >
+                {{ item.value }}
+              </a>
+              <span v-else class="about__list-value">{{ item.value }}</span>
+            </li>
+          </ul>
+        </aside>
       </div>
     </div>
   </section>
@@ -39,84 +52,78 @@ defineProps<{
 
 <style scoped>
 .about {
-  padding: 6rem 0;
+  padding: var(--section-y) 0;
 }
 
-.about__grid {
-  display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 3rem;
-  align-items: start;
-}
-
-.about__text {
+.about__layout {
   display: flex;
   flex-direction: column;
+  gap: 2.5rem;
+}
+
+.about__paragraph {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  line-height: 1.8;
+  max-width: 40rem;
+}
+
+.about__paragraph + .about__paragraph {
+  margin-top: 1.25rem;
+}
+
+.about__paragraph--lead {
+  font-family: var(--font-display);
+  font-size: clamp(1.125rem, 4vw, 1.375rem);
+  color: var(--color-text);
+  line-height: 1.55;
+  letter-spacing: -0.02em;
+}
+
+.about__aside {
+  border-top: 1px solid var(--color-border);
+  padding-top: 1.5rem;
+}
+
+.about__list {
+  list-style: none;
+  display: grid;
   gap: 1.25rem;
 }
 
-.about__text p {
-  font-size: 1.0625rem;
+.about__list-label {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--color-text-muted);
-  line-height: 1.75;
+  margin-bottom: 0.375rem;
 }
 
-.about__card {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 1.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  transition: var(--transition);
+.about__list-value {
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  font-weight: 600;
 }
 
-.about__card:hover {
-  border-color: var(--color-border-hover);
-  transform: translateY(-4px);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
-}
-
-.about__card-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-  padding: 0.75rem;
-  margin: -0.75rem;
-  border-radius: var(--radius-sm);
-  transition: var(--transition);
-}
-
-.about__card-item:hover {
-  background: var(--color-accent-soft);
-}
-
-.about__card-item:hover .about__card-value {
+.about__list-value--link:hover {
   color: var(--color-accent);
 }
 
-.about__card-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-}
-
-.about__card-value {
-  font-size: 1rem;
-  font-weight: 500;
-  transition: var(--transition);
-}
-
-@media (max-width: 768px) {
-  .about__grid {
-    grid-template-columns: 1fr;
+@media (min-width: 900px) {
+  .about__layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 4rem;
+    align-items: start;
   }
 
-  .about__card {
-    order: -1;
+  .about__aside {
+    border-top: none;
+    border-left: 1px solid var(--color-border);
+    padding-top: 0;
+    padding-left: 2rem;
   }
 }
 </style>

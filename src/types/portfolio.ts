@@ -30,6 +30,13 @@ export interface Experience {
   company: string
   period: string
   description: string
+  companyUrl?: string
+}
+
+export interface AboutHighlight {
+  label: string
+  value: string
+  href?: string
 }
 
 export interface PortfolioData {
@@ -39,6 +46,7 @@ export interface PortfolioData {
   email: string
   location: string
   about: string[]
+  aboutHighlights: AboutHighlight[]
   navLinks: NavLink[]
   socialLinks: SocialLink[]
   skills: Skill[]

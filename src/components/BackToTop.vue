@@ -33,14 +33,14 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
 <style scoped>
 .back-to-top {
   position: fixed;
-  bottom: 2rem;
-  right: 2rem;
+  bottom: calc(1rem + var(--safe-bottom));
+  right: 1rem;
   z-index: 90;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   background: var(--color-bg-card);
   border: 1px solid var(--color-border-hover);
   border-radius: 50%;

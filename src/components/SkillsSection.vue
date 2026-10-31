@@ -15,7 +15,6 @@ const categories = [
 ]
 
 const activeFilter = ref<'all' | SkillCategory>('all')
-const hoveredSkill = ref<string | null>(null)
 
 const filteredSkills = computed(() => {
   const filter = activeFilter.value
@@ -37,8 +36,10 @@ function formatCategories(categories: SkillCategory[]) {
 <template>
   <section id="skills" class="skills">
     <div class="section-container">
-      <span class="section-label" data-reveal>Skills</span>
-      <h2 class="section-title" data-reveal>Technologies I work with</h2>
+      <span class="section-label" data-reveal><em>//</em> stack</span>
+      <h2 class="section-title" data-reveal>
+        Skills<span class="section-title--stroke">& tools</span>
+      </h2>
 
       <div class="skills__filters" data-reveal>
         <button
@@ -52,119 +53,98 @@ function formatCategories(categories: SkillCategory[]) {
         </button>
       </div>
 
-      <TransitionGroup name="skill" tag="ul" class="skills__cloud" data-reveal>
-        <li
-          v-for="skill in filteredSkills"
-          :key="skill.name"
-          class="skills__pill"
-          :class="{ 'skills__pill--hovered': hoveredSkill === skill.name }"
-          @mouseenter="hoveredSkill = skill.name"
-          @mouseleave="hoveredSkill = null"
-        >
-          <span class="skills__pill-name">{{ skill.name }}</span>
-          <span class="skills__pill-cat">{{ formatCategories(skill.categories) }}</span>
+      <ul class="skills__grid" data-reveal>
+        <li v-for="skill in filteredSkills" :key="skill.name" class="skills__item">
+          <span class="skills__name">{{ skill.name }}</span>
+          <span class="skills__cat">{{ formatCategories(skill.categories) }}</span>
         </li>
-      </TransitionGroup>
+      </ul>
     </div>
   </section>
 </template>
 
 <style scoped>
 .skills {
-  padding: 6rem 0;
-  background: var(--color-bg-elevated);
+  padding: var(--section-y) 0;
   border-top: 1px solid var(--color-border);
-  border-bottom: 1px solid var(--color-border);
 }
 
 .skills__filters {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.625rem;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
   margin-bottom: 2rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.skills__filters::-webkit-scrollbar {
+  display: none;
 }
 
 .skills__filter {
+  flex-shrink: 0;
+  min-height: 44px;
   padding: 0.5rem 1rem;
-  font-size: 0.8125rem;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
   font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--color-text-muted);
-  background: var(--color-bg-card);
   border: 1px solid var(--color-border);
   border-radius: 999px;
   transition: var(--transition);
 }
 
-.skills__filter:hover {
-  color: var(--color-text);
-  border-color: var(--color-border-hover);
-}
-
 .skills__filter--active {
-  color: #fff;
-  background: var(--color-accent);
-  border-color: var(--color-accent);
+  color: var(--color-bg);
+  background: var(--color-text);
+  border-color: var(--color-text);
 }
 
-.skills__cloud {
+.skills__grid {
   list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  border-top: 1px solid var(--color-border);
 }
 
-.skills__pill {
+.skills__item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1rem;
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  cursor: default;
-  transition: var(--transition);
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--color-border);
+  transition: color var(--transition);
 }
 
-.skills__pill:hover,
-.skills__pill--hovered {
-  border-color: var(--color-accent);
-  background: var(--color-accent-soft);
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-}
-
-.skills__pill-name {
-  font-size: 0.9375rem;
-  font-weight: 600;
-}
-
-.skills__pill-cat {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--color-text-muted);
-  padding: 0.125rem 0.375rem;
-  background: var(--color-bg-elevated);
-  border-radius: 4px;
-}
-
-.skills__pill:hover .skills__pill-cat {
+.skills__item:hover {
   color: var(--color-accent);
 }
 
-.skill-enter-active,
-.skill-leave-active {
-  transition: all 0.3s ease;
+.skills__name {
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 3vw, 1.25rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
-.skill-enter-from,
-.skill-leave-to {
-  opacity: 0;
-  transform: scale(0.85);
+.skills__cat {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  text-align: right;
 }
 
-.skill-move {
-  transition: transform 0.3s ease;
+@media (min-width: 640px) {
+  .skills__grid {
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 2rem;
+  }
 }
 </style>

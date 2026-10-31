@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { portfolio } from '@/data/portfolio'
 import { useScrollReveal } from '@/composables/useScrollReveal'
 import { useActiveSection } from '@/composables/useActiveSection'
@@ -7,6 +7,7 @@ import NavBar from '@/components/NavBar.vue'
 import ScrollProgress from '@/components/ScrollProgress.vue'
 import BackToTop from '@/components/BackToTop.vue'
 import HeroSection from '@/components/HeroSection.vue'
+import MarqueeBand from '@/components/MarqueeBand.vue'
 import AboutSection from '@/components/AboutSection.vue'
 import SkillsSection from '@/components/SkillsSection.vue'
 import ProjectsSection from '@/components/ProjectsSection.vue'
@@ -18,6 +19,8 @@ const isMenuOpen = ref(false)
 
 const sectionIds = portfolio.navLinks.map((link) => link.href.replace('#', ''))
 const { activeSection } = useActiveSection(sectionIds)
+
+const marqueeItems = computed(() => portfolio.skills.map((skill) => skill.name))
 
 useScrollReveal()
 </script>
@@ -32,13 +35,14 @@ useScrollReveal()
     :active-section="activeSection"
   />
 
-  <main>
+  <main class="site-main">
     <HeroSection
       :name="portfolio.name"
       :title="portfolio.title"
       :tagline="portfolio.tagline"
     />
-    <AboutSection :about="portfolio.about" :location="portfolio.location" />
+    <MarqueeBand :items="marqueeItems" />
+    <AboutSection :about="portfolio.about" :highlights="portfolio.aboutHighlights" />
     <SkillsSection :skills="portfolio.skills" />
     <ProjectsSection :projects="portfolio.projects" />
     <ExperienceSection :experience="portfolio.experience" />
@@ -50,7 +54,9 @@ useScrollReveal()
 </template>
 
 <style scoped>
-main {
-  overflow-x: hidden;
+.site-main {
+  overflow-x: clip;
+  position: relative;
+  z-index: 1;
 }
 </style>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { watch } from 'vue'
 import type { NavLink } from '@/types/portfolio'
 
 const props = defineProps<{
@@ -20,14 +21,17 @@ function sectionId(href: string) {
 function isActive(href: string) {
   return sectionId(href) === props.activeSection
 }
+
+watch(isMenuOpen, (open) => {
+  document.body.style.overflow = open ? 'hidden' : ''
+})
 </script>
 
 <template>
-  <header class="nav">
+  <header class="nav" :class="{ 'nav--open': isMenuOpen }">
     <div class="nav__inner section-container">
-      <a href="#" class="nav__logo" @click="closeMenu">
-        <span class="nav__logo-accent">{{ name.charAt(0) }}</span>
-        <span class="nav__logo-text">{{ name.split(' ')[0] ?? name }}</span>
+      <a href="#top" class="nav__logo" @click="closeMenu">
+        {{ name.split(' ')[0] ?? name }}
       </a>
 
       <nav class="nav__links" :class="{ 'nav__links--open': isMenuOpen }">
@@ -39,7 +43,7 @@ function isActive(href: string) {
           :class="{ 'nav__link--active': isActive(link.href) }"
           @click="closeMenu"
         >
-          {{ link.label }}
+          <span class="nav__link-text">{{ link.label }}</span>
         </a>
       </nav>
 
@@ -49,9 +53,7 @@ function isActive(href: string) {
         aria-label="Toggle navigation menu"
         @click="isMenuOpen = !isMenuOpen"
       >
-        <span class="nav__toggle-bar" :class="{ 'nav__toggle-bar--open': isMenuOpen }" />
-        <span class="nav__toggle-bar" :class="{ 'nav__toggle-bar--open': isMenuOpen }" />
-        <span class="nav__toggle-bar" :class="{ 'nav__toggle-bar--open': isMenuOpen }" />
+        <span>{{ isMenuOpen ? 'Close' : 'Menu' }}</span>
       </button>
     </div>
   </header>
@@ -60,14 +62,19 @@ function isActive(href: string) {
 <style scoped>
 .nav {
   position: fixed;
-  top: 3px;
+  top: 0;
   left: 0;
   right: 0;
   z-index: 100;
   height: var(--nav-height);
-  background: rgba(10, 10, 15, 0.82);
+  background: rgba(8, 7, 11, 0.72);
   backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--transition);
+}
+
+.nav--open {
+  border-bottom-color: var(--color-border);
 }
 
 .nav__inner {
@@ -78,141 +85,91 @@ function isActive(href: string) {
 }
 
 .nav__logo {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
   font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.125rem;
-  transition: var(--transition);
-}
-
-.nav__logo:hover {
-  opacity: 0.85;
-}
-
-.nav__logo-accent {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  background: var(--color-accent);
-  color: #fff;
-  border-radius: var(--radius-sm);
+  font-weight: 600;
   font-size: 1rem;
-  transition: var(--transition);
-}
-
-.nav__logo:hover .nav__logo-accent {
-  transform: rotate(-6deg) scale(1.05);
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
 }
 
 .nav__links {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-}
-
-.nav__link {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--color-text-muted);
-  transition: var(--transition);
-  position: relative;
-}
-
-.nav__link::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: var(--color-accent);
-  transition: var(--transition);
-}
-
-.nav__link:hover,
-.nav__link--active {
-  color: var(--color-text);
-}
-
-.nav__link:hover::after,
-.nav__link--active::after {
-  width: 100%;
-}
-
-.nav__link--active {
-  color: var(--color-accent);
+  display: none;
 }
 
 .nav__toggle {
-  display: none;
-  flex-direction: column;
-  gap: 5px;
-  padding: 4px;
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
 }
 
-.nav__toggle-bar {
-  display: block;
-  width: 22px;
-  height: 2px;
-  background: var(--color-text);
-  border-radius: 2px;
-  transition: var(--transition);
+.nav__link {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 8vw, 3rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--color-text-muted);
+  transition: color var(--transition);
 }
 
-.nav__toggle-bar--open:nth-child(1) {
-  transform: translateY(7px) rotate(45deg);
+.nav__link--active,
+.nav__link:hover {
+  color: var(--color-text);
 }
 
-.nav__toggle-bar--open:nth-child(2) {
-  opacity: 0;
-}
-
-.nav__toggle-bar--open:nth-child(3) {
-  transform: translateY(-7px) rotate(-45deg);
+.nav__link--active .nav__link-text {
+  color: var(--color-accent);
 }
 
 @media (max-width: 768px) {
-  .nav__toggle {
-    display: flex;
-  }
-
   .nav__links {
-    position: fixed;
-    top: calc(var(--nav-height) + 3px);
-    left: 0;
-    right: 0;
+    display: flex;
     flex-direction: column;
-    gap: 0;
-    background: var(--color-bg-elevated);
-    border-bottom: 1px solid var(--color-border);
-    padding: 1rem 0;
-    transform: translateY(-110%);
-    opacity: 0;
-    pointer-events: none;
-    transition: var(--transition);
+    gap: 1.25rem;
+    position: fixed;
+    inset: var(--nav-height) 0 0 0;
+    padding: 2rem 1.125rem;
+    background: rgba(8, 7, 11, 0.96);
+    transform: translateX(100%);
+    transition: transform var(--transition);
   }
 
   .nav__links--open {
-    transform: translateY(0);
-    opacity: 1;
-    pointer-events: auto;
+    transform: translateX(0);
   }
+}
 
-  .nav__link {
-    width: 100%;
-    padding: 0.875rem 1.5rem;
-  }
-
-  .nav__link::after {
+@media (min-width: 769px) {
+  .nav__toggle {
     display: none;
   }
 
-  .nav__link--active {
-    background: var(--color-accent-soft);
+  .nav__links {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    position: static;
+    padding: 0;
+    background: transparent;
+    transform: none;
+    flex-direction: row;
+  }
+
+  .nav__link {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .nav__link--active .nav__link-text {
+    color: var(--color-accent);
   }
 }
 </style>
